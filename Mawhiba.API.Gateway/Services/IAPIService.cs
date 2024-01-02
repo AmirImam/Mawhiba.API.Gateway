@@ -1,4 +1,4 @@
-﻿namespace Mawhiba.API.Gateway.Helpers;
+﻿namespace Mawhiba.API.Gateway.Services;
 
 public interface IAPIService
 {

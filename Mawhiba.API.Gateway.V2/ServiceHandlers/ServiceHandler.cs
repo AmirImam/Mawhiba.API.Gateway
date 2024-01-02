@@ -1,20 +1,24 @@
 ﻿
-namespace Mawhiba.API.Gateway;
+namespace Mawhiba.API.Gateway.V2;
 
 public class ServiceHandler
 {
-    public ServiceHandler() { }
+    
 
-    public virtual HttpRequestMessage HandleRequest( HttpRequestMessage requestMessage,HttpRequest request)
+    public virtual HttpRequestMessage HandleRequest(HttpRequestMessage requestMessage,HttpRequest request)
     {
+        var token = request.Headers["Authorization"];
+
         foreach (var header in request.Headers)
         {
             requestMessage.Headers.Add(header.Key, new string[] { header.Value });
         }
 
+        //requestMessage.Headers.Add("Authorization", token.ToString());
+        //requestMessage.Headers.Add("Host", "your_host_value");
+
         return requestMessage;
     }
-
     public virtual async Task<APIResult> HandleResponseAsync(HttpResponseMessage response)
     {
         var result = new APIResult

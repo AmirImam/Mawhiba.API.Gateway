@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mawhiba.API.Gateway.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Mawhiba.API.Gateway.Controllers;
 
@@ -14,7 +15,8 @@ public class GenericServiceController : ControllerBase
         _apiService = apiService;
     }
 
-    [HttpGet("Get")]
+    [HttpGet]
+    [Route("/api/[controller]/get")]
     public async Task<IActionResult> GetAsync(int serviceId, string url) // actionId OR Encrypted
     {
         try
@@ -28,7 +30,8 @@ public class GenericServiceController : ControllerBase
         }
     }
 
-    [HttpPost("Post")]
+    [HttpPost]
+    [Route("/api/[controller]/post")]
     public async Task<IActionResult> PostAsync(int serviceId, string url, object data)
     {
         try

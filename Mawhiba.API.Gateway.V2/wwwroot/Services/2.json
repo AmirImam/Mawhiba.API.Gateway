@@ -1,0 +1,10 @@
+{
+  "BaseUrl": "https://testapi.mawhiba.org/kangaroo/api/",
+  "Endpoints": [
+    {
+      "Key": "1",
+      "Route": "GetRegistrationOpenCloseStatus",
+      "Authorized": true
+    }
+  ]
+}
