@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Mawhiba.API.Gateway.Services;
 
-public class APIService : IAPIService
+public class APIService //: IAPIService
 {
     private HttpClient Http
     {
@@ -35,53 +35,22 @@ public class APIService : IAPIService
 
     public virtual async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, object data)
     {
-        try
+        StringContent? stringContent = null;
+        if (data != null)
         {
-            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId);
-            var serviceInfo = ReadServiceJsonFile(serviceId);
-            string fullUrl = $"{serviceInfo.BaseUrl.TrimEnd('/')}/{url}";
-
-            HttpRequestMessage requestMessage = new()
-            {
-                Method = method,
-                RequestUri = new Uri(fullUrl)
-            };
-
-            var request = _serviceHandler.HandleRequest(requestMessage, httpContextAccessor.HttpContext.Request);
-
-            if (data != null)
-            {
-                var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
-                request.Content = content;
-            }
-            using (var _http = Http)
-            {
-                _http.BaseAddress = new Uri(serviceInfo.BaseUrl);
-                string curl = _http.GenerateCurlInConsole(requestMessage);
-                var response = await _http.SendAsync(request);
-                return await _serviceHandler.HandleResponseAsync(response);
-            }
+            var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            stringContent = content;
         }
-        catch (Exception ex)
-        {
-            return _serviceHandler.HandleException(ex);
-        }
+
+        return await ExecuteCallAsync(serviceId, url, method, stringContent);
+       
     }
-
-
-    private ServiceInfo ReadServiceJsonFile(int serviceId)
+    public virtual async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, StringContent? data)
     {
-        var _hostingEnvironment = webHostEnvironment;// this.ServiceProvider.GetService<IHttpContextAccessor>();
-        string file = Path.Combine(_hostingEnvironment.ContentRootPath, "wwwroot\\Services", $"{serviceId}.json");
-        StreamReader reader = new(file);
-        string content = reader.ReadToEnd();
-        reader.Close();
-        ServiceInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceInfo>(content);
-        return info;
-        //jsonData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
+        return await ExecuteCallAsync(serviceId, url, method, data);
     }
 
-    public async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, StringContent? data)
+    private async Task<APIResult?> ExecuteCallAsync(int serviceId, string url, HttpMethod method, StringContent? data)
     {
         try
         {
@@ -96,10 +65,8 @@ public class APIService : IAPIService
             };
 
             var request = _serviceHandler.HandleRequest(requestMessage, httpContextAccessor.HttpContext.Request);
-
             if (data != null)
             {
-                //var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 request.Content = data;
             }
             using (var _http = Http)
@@ -115,5 +82,18 @@ public class APIService : IAPIService
             return _serviceHandler.HandleException(ex);
         }
     }
+
+    private ServiceInfo ReadServiceJsonFile(int serviceId)
+    {
+        var _hostingEnvironment = webHostEnvironment;// this.ServiceProvider.GetService<IHttpContextAccessor>();
+        string file = Path.Combine(_hostingEnvironment.ContentRootPath, "wwwroot\\Services", $"{serviceId}.json");
+        StreamReader reader = new(file);
+        string content = reader.ReadToEnd();
+        reader.Close();
+        ServiceInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceInfo>(content);
+        return info;
+        //jsonData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
+    }
+
 }
 

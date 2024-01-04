@@ -1,7 +1,6 @@
 global using Mawhiba.API.Gateway.Helpers;
 global using Newtonsoft.Json;
 global using Mawhiba.API.Gateway;
-using Mawhiba.API.Gateway.Controllers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddGatewayServices();
+builder.Services.AddScoped<MyCustomMiddleware>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

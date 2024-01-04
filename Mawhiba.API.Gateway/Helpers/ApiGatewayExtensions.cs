@@ -12,7 +12,7 @@ public static class ApiGatewayExtensions
 
         HttpClient http = new(clientHandler);
         services.AddScoped(sp=> http);
-        services.AddScoped<IAPIService, APIService>();
+        services.AddScoped<APIService>();
         services.AddScoped<ServiceHandler>();
         services.AddSingleton<ServiceHandlerParser>();
         services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
