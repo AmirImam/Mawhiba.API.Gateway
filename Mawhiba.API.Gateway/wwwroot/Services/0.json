@@ -1,0 +1,15 @@
+{
+  "BaseUrl": "https://testapi.mawhiba.org/UserProfile/api/",
+  "Endpoints": [
+    {
+      "Key": "1",
+      "Route": "registration/getregistration",
+      "Authorized": false
+    },
+    {
+      "Key": "2",
+      "Route": "registration/saveregistration",
+      "Authorized": true
+    } //serviceid=1&routekey=2 -> bebras/api/registration/save
+  ]
+}

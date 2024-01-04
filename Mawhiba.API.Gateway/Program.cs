@@ -1,6 +1,7 @@
 global using Mawhiba.API.Gateway.Helpers;
 global using Newtonsoft.Json;
 global using Mawhiba.API.Gateway;
+using Mawhiba.API.Gateway.Controllers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,5 +25,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.UseMiddleware<MyCustomMiddleware>();
 app.Run();

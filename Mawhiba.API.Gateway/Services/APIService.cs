@@ -1,21 +1,32 @@
 ﻿using ApiGatewayService.API.ServiceHandlers;
+using HttpClientToCurl;
 using System.Text;
 
 namespace Mawhiba.API.Gateway.Services;
 
 public class APIService : IAPIService
 {
-    private readonly HttpClient _httpClient;
+    private HttpClient Http
+    {
+        get
+        {
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+            HttpClient http = new(clientHandler, false);
+            return http;
+        }
+    }
     private readonly ServiceHandlerParser serviceHandlerParser;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IWebHostEnvironment webHostEnvironment;
     private ServiceHandler _serviceHandler;
 
-    public APIService(HttpClient httpClient, ServiceHandlerParser serviceHandlerParser,
+    public APIService(ServiceHandlerParser serviceHandlerParser,
         IHttpContextAccessor httpContextAccessor,
         IWebHostEnvironment webHostEnvironment)
     {
-        _httpClient = httpClient;
+
         this.serviceHandlerParser = serviceHandlerParser;
         this.httpContextAccessor = httpContextAccessor;
         this.webHostEnvironment = webHostEnvironment;
@@ -27,24 +38,36 @@ public class APIService : IAPIService
         try
         {
             _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId);
-            var requestMessage = new HttpRequestMessage(method, url);
-            var request = _serviceHandler.HandleRequest(requestMessage,httpContextAccessor.HttpContext.Request);
+            var serviceInfo = ReadServiceJsonFile(serviceId);
+            string fullUrl = $"{serviceInfo.BaseUrl.TrimEnd('/')}/{url}";
+
+            HttpRequestMessage requestMessage = new()
+            {
+                Method = method,
+                RequestUri = new Uri(fullUrl)
+            };
+
+            var request = _serviceHandler.HandleRequest(requestMessage, httpContextAccessor.HttpContext.Request);
 
             if (data != null)
             {
                 var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
                 request.Content = content;
             }
-            var serviceInfo = ReadServiceJsonFile(serviceId);
-            _httpClient.BaseAddress = new Uri(serviceInfo.BaseUrl);
-            var response = await _httpClient.SendAsync(request);
-            return await _serviceHandler.HandleResponseAsync(response);
+            using (var _http = Http)
+            {
+                _http.BaseAddress = new Uri(serviceInfo.BaseUrl);
+                string curl = _http.GenerateCurlInConsole(requestMessage);
+                var response = await _http.SendAsync(request);
+                return await _serviceHandler.HandleResponseAsync(response);
+            }
         }
         catch (Exception ex)
         {
             return _serviceHandler.HandleException(ex);
         }
     }
+
 
     private ServiceInfo ReadServiceJsonFile(int serviceId)
     {
@@ -56,6 +79,41 @@ public class APIService : IAPIService
         ServiceInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceInfo>(content);
         return info;
         //jsonData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
+    }
+
+    public async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, StringContent? data)
+    {
+        try
+        {
+            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId);
+            var serviceInfo = ReadServiceJsonFile(serviceId);
+            string fullUrl = $"{serviceInfo.BaseUrl.TrimEnd('/')}/{url}";
+
+            HttpRequestMessage requestMessage = new()
+            {
+                Method = method,
+                RequestUri = new Uri(fullUrl)
+            };
+
+            var request = _serviceHandler.HandleRequest(requestMessage, httpContextAccessor.HttpContext.Request);
+
+            if (data != null)
+            {
+                //var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+                request.Content = data;
+            }
+            using (var _http = Http)
+            {
+                _http.BaseAddress = new Uri(serviceInfo.BaseUrl);
+                string curl = _http.GenerateCurlInConsole(requestMessage);
+                var response = await _http.SendAsync(request);
+                return await _serviceHandler.HandleResponseAsync(response);
+            }
+        }
+        catch (Exception ex)
+        {
+            return _serviceHandler.HandleException(ex);
+        }
     }
 }
 

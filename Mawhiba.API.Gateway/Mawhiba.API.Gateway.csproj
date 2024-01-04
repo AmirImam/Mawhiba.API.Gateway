@@ -11,4 +11,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="HttpClientToCurl">
+      <HintPath>..\..\..\..\Downloads\HttpClientToCurlGenerator-master\HttpClientToCurlGenerator-master\src\HttpClientToCurl\bin\Debug\netstandard2.1\HttpClientToCurl.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

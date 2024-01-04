@@ -7,13 +7,21 @@ public class ServiceHandler
 
     public virtual HttpRequestMessage HandleRequest( HttpRequestMessage requestMessage,HttpRequest request)
     {
-        foreach (var header in request.Headers)
-        {
-            requestMessage.Headers.Add(header.Key, new string[] { header.Value });
-        }
+        //foreach (var header in request.Headers)
+        //{
+        //    requestMessage.Headers.Add(header.Key, new string[] { header.Value });
+        //}
+        //if(req)
+        requestMessage = TryAddHeader(requestMessage, request, "authorization");
+        requestMessage = TryAddHeader(requestMessage, request, "f_ur_453_x0");
+        
 
+        //if (authorization )
+        //{
+        //}
         return requestMessage;
     }
+
 
     public virtual async Task<APIResult> HandleResponseAsync(HttpResponseMessage response)
     {
@@ -26,7 +34,7 @@ public class ServiceHandler
 
         if (response.IsSuccessStatusCode)
         {
-            result.ResultObject = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+            result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync(), typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
         }
         else
         {
@@ -47,5 +55,15 @@ public class ServiceHandler
         };
     }
     // Error codes
+
+    private HttpRequestMessage TryAddHeader(HttpRequestMessage requestMessage, HttpRequest request,string headerkey)
+    {
+        var header = request.Headers[headerkey];
+        if (header.Any())
+        {
+            requestMessage.Headers.Add(headerkey, header.ToString());
+        }
+        return requestMessage;
+    }
 
 }

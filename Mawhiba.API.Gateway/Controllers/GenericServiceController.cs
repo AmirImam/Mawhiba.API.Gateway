@@ -1,5 +1,8 @@
 ﻿using Mawhiba.API.Gateway.Services;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Text;
 
 namespace Mawhiba.API.Gateway.Controllers;
 
@@ -46,12 +49,47 @@ public class GenericServiceController : ControllerBase
     }
 }
 
-
-public class ExternalServiceRequest
+public class MyCustomMiddleware
 {
-    public string Url { get; set; }
-    public HttpMethod Method { get; set; }
-    public object Payload { get; set; }
-    public string AuthorizationToken { get; set; }
-    public string Host { get; set; }
+    private readonly RequestDelegate next;
+
+
+    public MyCustomMiddleware(RequestDelegate next)
+    {
+        this.next = next;
+        
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            var queryParameters = context.Request.Query
+             .SelectMany(q => q.Value, (col, value) => new { col.Key, value })
+             .ToDictionary(arg => arg.Key, arg => arg.value.ToString());
+            int serviceId = int.Parse(queryParameters["serviceId"]);
+            string url = queryParameters["url"];
+            string method = context.Request.Method.ToLower();
+            var _apiService = context.RequestServices.GetService(typeof(IAPIService)) as IAPIService;
+            var body = context.Request.Body;
+            StringContent? stringContent = null;
+            if (body != null)
+            {
+                using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+                {
+                    stringContent = new StringContent(await reader.ReadToEndAsync(), Encoding.UTF8, "application/json");
+                }
+            }
+
+
+
+            APIResult result = await _apiService.CallAsync(serviceId, url, new HttpMethod(method), stringContent);
+            await context.Response.WriteAsJsonAsync(result);
+        }
+        catch (Exception ex)
+        {
+           await context.Response.WriteAsJsonAsync(ex);
+        }
+        //await next.Invoke(context);
+    }
 }
