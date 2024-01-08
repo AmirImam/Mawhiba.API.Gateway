@@ -1,3 +1,7 @@
 {
-  "BaseUrl": "https://testapi.mawhiba.org/kangaroo/api/"
+  "BaseUrl": "https://testapi.mawhiba.org/kangaroo/api/",
+  "FailedCodes": [
+    "Creat_BE03",
+    "Creat_A00"
+  ]
 }

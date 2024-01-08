@@ -56,6 +56,7 @@ public class APIService //: IAPIService
         {
             _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId);
             var serviceInfo = ReadServiceJsonFile(serviceId);
+            _serviceHandler.CurrentServiceInfo = serviceInfo;
             string fullUrl = $"{serviceInfo.BaseUrl.TrimEnd('/')}/{url}";
 
             HttpRequestMessage requestMessage = new()

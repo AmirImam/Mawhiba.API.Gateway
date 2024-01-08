@@ -4,7 +4,7 @@ namespace Mawhiba.API.Gateway;
 public class ServiceHandler
 {
     public ServiceHandler() { }
-
+    public ServiceInfo CurrentServiceInfo { get; set; }
     public virtual HttpRequestMessage HandleRequest( HttpRequestMessage requestMessage,HttpRequest request)
     {
         //foreach (var header in request.Headers)
@@ -35,6 +35,13 @@ public class ServiceHandler
         if (response.IsSuccessStatusCode)
         {
             result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync(), typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+            //result.IsSuccess = CurrentServiceInfo.FailedCodes.Contains(result.ResultCode) == false;
+
+
+            //string json = await response.Content.ReadAsStringAsync();
+            ////result.ResultObject = System.Text.Json.JsonSerializer.Deserialize<ApiResultObject>(json);
+            ////result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(, typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+            ////result.IsSuccess = CurrentServiceInfo.FailedCodes.Contains(result.ResultObject.ResultCode) == false;
         }
         else
         {
@@ -66,4 +73,12 @@ public class ServiceHandler
         return requestMessage;
     }
 
+}
+public class ApiResultObject
+{
+    public string ResultCode { get; set; }
+    public string ResultMessage { get; set; }
+    public object MoreDetails { get; set; }
+    public object ValidatonDictionary { get; set; }
+    public int ResultObject { get; set; }
 }
