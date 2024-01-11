@@ -11,10 +11,15 @@ public static class ApiGatewayExtensions
         clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
         HttpClient http = new(clientHandler);
-        services.AddScoped(sp=> http);
+        services.AddScoped(sp => http);
         services.AddScoped<APIService>();
         services.AddScoped<ServiceHandler>();
         services.AddSingleton<ServiceHandlerParser>();
         services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+    }
+
+    public static bool IsSuccess(this ServiceInfo service, string code)
+    {
+        return service.SuccessCodes.Any(c => string.Equals(c, code, StringComparison.OrdinalIgnoreCase));
     }
 }

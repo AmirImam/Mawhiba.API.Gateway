@@ -1,6 +1,45 @@
 {
   "BaseUrl": "https://testapi.mawhiba.org/UserProfile/api/",
+  "SuccessCodes": [
+    "OPP00", // Succeeded
+    "RES00", // Founded
+    "RES01" // Success Login
+  ],
   "FailedCodes": [
-    "Failed"
+    "ERR01", // Invalid User/Password, Identity or Email Error, User Not Founded, Email Already Confirmed
+    "ERR02", // Username Not Exist, Username Error
+    "ERR03", // Invalid Email, Password Error
+    "ERR04", // Invalid User, Email Error
+    "ERR05", // User Inactive, BirthDate Error
+    "ERR06", // User Blocked, BirthDate Hijri Error
+    "ERR07", // Email Not Exist, Nationality ID Error
+    "ERR08", // Error Occurred, Mobile Error
+    "ERR40", // Invalid Mobile
+    "RES-401", // UnAuthorize
+    "RES-1", // NotFounded
+    "RES-2", // ItemAlreadyExistsBefore
+    "RES-20", // FieldIsNullOrEmpty
+    "ERR09", // FirstName Error
+    "ERR10", // SecondName Error
+    "ERR11", // ThirdName Error
+    "ERR12", // FamilyName Error
+    "ERR13", // YakeenID Error
+    "ERR14", // Email Activation Code Error
+    "ERR15", // Types Error
+    "ERR16", // Other Type Error
+    "ERR17", // Identity Yakeen/Iqama ID Invalid
+    "ERR30", // Invalid Level ID
+    "ERR31", // Invalid Class ID
+    "ERR32", // Class Confirmation URL Required
+    "ERR50", // Email Unavailable Error
+    "ERR71", // Is Class Request Pending Approval
+    "ERR103", // Email/Mobile Not Confirmed
+    "ERR105", // Phone/Gurdian Phone Invalid
+    "ERR116", // Invalid Mobile, Gurdian Mobile Invalid, Postal Code Invalid, Mail Box Invalid
+    "BERR1", // Invalid Username
+    "BERR2", // Invalid Email
+    "BERR3", // National ID Already Belong To Active User
+    "ERR00", // Failed
+    "UNR00" // Unknown Error
   ]
 }

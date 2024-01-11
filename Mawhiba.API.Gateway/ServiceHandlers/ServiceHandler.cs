@@ -1,11 +1,14 @@
 ﻿
+using Mawhiba.API.Gateway.Helpers;
+using System.Xml.Linq;
+
 namespace Mawhiba.API.Gateway;
 
 public class ServiceHandler
 {
     public ServiceHandler() { }
     public ServiceInfo CurrentServiceInfo { get; set; }
-    public virtual HttpRequestMessage HandleRequest( HttpRequestMessage requestMessage,HttpRequest request)
+    public virtual HttpRequestMessage HandleRequest(HttpRequestMessage requestMessage, HttpRequest request)
     {
         //foreach (var header in request.Headers)
         //{
@@ -14,7 +17,7 @@ public class ServiceHandler
         //if(req)
         requestMessage = TryAddHeader(requestMessage, request, "authorization");
         requestMessage = TryAddHeader(requestMessage, request, "f_ur_453_x0");
-        
+
 
         //if (authorization )
         //{
@@ -23,35 +26,75 @@ public class ServiceHandler
     }
 
 
+    //public virtual async Task<APIResult> HandleResponseAsync2(HttpResponseMessage response)
+    //{
+    //    var result = new APIResult
+    //    {
+    //        ResultCode = ((int)response.StatusCode).ToString(),
+    //        ResultMessage = response.ReasonPhrase
+    //    };
+
+    //    if (response.IsSuccessStatusCode)
+    //    {
+    //        result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync(), typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+    //        result.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultObject.);
+    //    }
+    //    else
+    //    {
+    //        result.MoreDetails = await response.Content.ReadAsStringAsync();
+    //        // Additional handling for specific status codes can be added here
+    //    }
+
+
+    //    return result;
+    //}
+
     public virtual async Task<APIResult> HandleResponseAsync(HttpResponseMessage response)
     {
-        var result = new APIResult
+        var apiResult = new APIResult
         {
-            ResultCode = ((int)response.StatusCode).ToString(),
-            ResultMessage = response.ReasonPhrase
+            //ResultCode = ((int)response.StatusCode).ToString(),
+            ResultMessage = response.ReasonPhrase ?? string.Empty,
+            IsSuccess = false
         };
 
+        string responseContent = await response.Content.ReadAsStringAsync();
 
         if (response.IsSuccessStatusCode)
         {
-            result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync(), typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
-            //result.IsSuccess = CurrentServiceInfo.FailedCodes.Contains(result.ResultCode) == false;
+            try
+            {
+                var result = System.Text.Json.JsonSerializer.Deserialize<APIResult>(responseContent);
+                
+                //var result =  JsonConvert.DeserializeObject<APIResult>(responseContent);
+                //var result = JsonConvert.DeserializeObject<dynamic>(responseContent)!;
+                //var str = System.Text.Json.JsonSerializer.Serialize(result.ResultObject);
 
+                if (result != null)
+                {
+                    if (result.ResultObject != null)
+                    {
+                        apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(result.ResultObject.ToString()!, typeof(object));
+                    }
 
-            //string json = await response.Content.ReadAsStringAsync();
-            ////result.ResultObject = System.Text.Json.JsonSerializer.Deserialize<ApiResultObject>(json);
-            ////result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(, typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
-            ////result.IsSuccess = CurrentServiceInfo.FailedCodes.Contains(result.ResultObject.ResultCode) == false;
+                    apiResult.ResultMessage = result.ResultMessage;
+                    apiResult.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultCode);
+                }
+            }
+            catch (JsonException ex)
+            {
+                apiResult.MoreDetails = $"JSON Deserialization Error: {ex.Message}";
+            }
         }
         else
         {
-            result.MoreDetails = await response.Content.ReadAsStringAsync();
-            // Additional handling for specific status codes can be added here
+            apiResult.MoreDetails = await response.Content.ReadAsStringAsync();
         }
 
-
-        return result;
+        return apiResult;
     }
+
+
     public virtual APIResult HandleException(Exception ex)
     {
         return new APIResult
@@ -63,7 +106,7 @@ public class ServiceHandler
     }
     // Error codes
 
-    private HttpRequestMessage TryAddHeader(HttpRequestMessage requestMessage, HttpRequest request,string headerkey)
+    private HttpRequestMessage TryAddHeader(HttpRequestMessage requestMessage, HttpRequest request, string headerkey)
     {
         var header = request.Headers[headerkey];
         if (header.Any())

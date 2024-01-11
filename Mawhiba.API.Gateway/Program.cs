@@ -25,5 +25,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseMiddleware<MyCustomMiddleware>();
+//app.UseMiddleware<MyCustomMiddleware>();
 app.Run();

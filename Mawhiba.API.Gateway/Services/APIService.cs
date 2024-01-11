@@ -1,5 +1,4 @@
 ﻿using ApiGatewayService.API.ServiceHandlers;
-using HttpClientToCurl;
 using System.Text;
 
 namespace Mawhiba.API.Gateway.Services;
@@ -43,7 +42,7 @@ public class APIService //: IAPIService
         }
 
         return await ExecuteCallAsync(serviceId, url, method, stringContent);
-       
+
     }
     public virtual async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, StringContent? data)
     {
@@ -54,10 +53,9 @@ public class APIService //: IAPIService
     {
         try
         {
-            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId);
-            var serviceInfo = ReadServiceJsonFile(serviceId);
-            _serviceHandler.CurrentServiceInfo = serviceInfo;
-            string fullUrl = $"{serviceInfo.BaseUrl.TrimEnd('/')}/{url}";
+            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, webHostEnvironment);
+            
+            string fullUrl = $"{_serviceHandler.CurrentServiceInfo.BaseUrl.TrimEnd('/')}/{url}";
 
             HttpRequestMessage requestMessage = new()
             {
@@ -70,10 +68,10 @@ public class APIService //: IAPIService
             {
                 request.Content = data;
             }
+
             using (var _http = Http)
             {
-                _http.BaseAddress = new Uri(serviceInfo.BaseUrl);
-                string curl = _http.GenerateCurlInConsole(requestMessage);
+                _http.BaseAddress = new Uri(_serviceHandler.CurrentServiceInfo.BaseUrl);
                 var response = await _http.SendAsync(request);
                 return await _serviceHandler.HandleResponseAsync(response);
             }
@@ -83,18 +81,5 @@ public class APIService //: IAPIService
             return _serviceHandler.HandleException(ex);
         }
     }
-
-    private ServiceInfo ReadServiceJsonFile(int serviceId)
-    {
-        var _hostingEnvironment = webHostEnvironment;// this.ServiceProvider.GetService<IHttpContextAccessor>();
-        string file = Path.Combine(_hostingEnvironment.ContentRootPath, "wwwroot\\Services", $"{serviceId}.json");
-        StreamReader reader = new(file);
-        string content = reader.ReadToEnd();
-        reader.Close();
-        ServiceInfo info = Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceInfo>(content);
-        return info;
-        //jsonData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,string>>(content);
-    }
-
 }
 

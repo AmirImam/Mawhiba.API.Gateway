@@ -24,7 +24,7 @@ public class GenericServiceController : ControllerBase
         try
         {
             APIResult? result = await _apiService.CallAsync(serviceId, url, HttpMethod.Get, null);
-            return Ok(result.ResultObject);
+            return Ok(result);
         }
         catch (Exception ex)
         {
