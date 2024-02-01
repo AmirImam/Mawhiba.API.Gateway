@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Mawhiba.API.Gateway.Models;
 
 namespace Mawhiba.API.Gateway.Helpers
 {
@@ -9,23 +10,41 @@ namespace Mawhiba.API.Gateway.Helpers
     {
         private static Dictionary<int, ServiceInfo> _serviceCache = new Dictionary<int, ServiceInfo>();
 
-        public static ServiceInfo GetServiceInfo(int serviceId, IWebHostEnvironment webHostEnvironment)
+        public static ServiceInfo GetServiceInfo(int serviceId, ContentServicesDbContext context)
         {
-            if (!_serviceCache.ContainsKey(serviceId))
+            try
             {
-                string file = Path.Combine(webHostEnvironment.ContentRootPath, "wwwroot\\Services", $"{serviceId}.json");
-                using (StreamReader reader = new StreamReader(file))
+                if (!_serviceCache.ContainsKey(serviceId))
                 {
-                    string content = reader.ReadToEnd();
-                    ServiceInfo? info = JsonConvert.DeserializeObject<ServiceInfo>(content);
-                    if (info != null)
+                    _serviceCache = new Dictionary<int, ServiceInfo>();
+                    var services = context.GatewaySettings.ToList();
+                    foreach (var item in services)
                     {
-                        _serviceCache[serviceId] = info;
+                        ServiceInfo? info = JsonConvert.DeserializeObject<ServiceInfo>(item.SettingJson);
+                        if (info != null)
+                        {
+                            _serviceCache[item.ServiceId] = info;
+                        }
                     }
                 }
-            }
 
-            return _serviceCache[serviceId];
+                return _serviceCache[serviceId];
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }        
+
+            //string file = Path.Combine(webHostEnvironment.ContentRootPath, "wwwroot\\Services", $"{serviceId}.json");
+            //using (StreamReader reader = new StreamReader(file))
+            //{
+            //    string content = reader.ReadToEnd();
+            //    ServiceInfo? info = JsonConvert.DeserializeObject<ServiceInfo>(content);
+            //    if (info != null)
+            //    {
+            //        _serviceCache[serviceId] = info;
+            //    }
+            //}
         }
     }
 }

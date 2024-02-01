@@ -65,7 +65,7 @@ public class ServiceHandler
             try
             {
                 var result = System.Text.Json.JsonSerializer.Deserialize<APIResult>(responseContent);
-                
+
                 //var result =  JsonConvert.DeserializeObject<APIResult>(responseContent);
                 //var result = JsonConvert.DeserializeObject<dynamic>(responseContent)!;
                 //var str = System.Text.Json.JsonSerializer.Serialize(result.ResultObject);
@@ -74,7 +74,15 @@ public class ServiceHandler
                 {
                     if (result.ResultObject != null)
                     {
-                        apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(result.ResultObject.ToString()!, typeof(object));
+                        try
+                        {
+                            apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(result.ResultObject.ToString()!, typeof(object));
+                        }
+                        catch
+                        {
+
+                            apiResult.ResultObject = null;
+                        }
                     }
 
                     apiResult.ResultMessage = result.ResultMessage;

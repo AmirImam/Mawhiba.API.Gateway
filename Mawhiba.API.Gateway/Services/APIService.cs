@@ -1,5 +1,7 @@
 ﻿using ApiGatewayService.API.ServiceHandlers;
+using Mawhiba.API.Gateway.Models;
 using System.Text;
+using System.Web;
 
 namespace Mawhiba.API.Gateway.Services;
 
@@ -19,16 +21,18 @@ public class APIService //: IAPIService
     private readonly ServiceHandlerParser serviceHandlerParser;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IWebHostEnvironment webHostEnvironment;
+    private readonly ContentServicesDbContext context;
     private ServiceHandler _serviceHandler;
 
     public APIService(ServiceHandlerParser serviceHandlerParser,
         IHttpContextAccessor httpContextAccessor,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment, ContentServicesDbContext context)
     {
 
         this.serviceHandlerParser = serviceHandlerParser;
         this.httpContextAccessor = httpContextAccessor;
         this.webHostEnvironment = webHostEnvironment;
+        this.context = context;
         //_serviceHandler = serviceHandler;
     }
 
@@ -53,8 +57,9 @@ public class APIService //: IAPIService
     {
         try
         {
-            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, webHostEnvironment);
+            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, context);
             
+            url = HttpUtility.UrlDecode(url);
             string fullUrl = $"{_serviceHandler.CurrentServiceInfo.BaseUrl.TrimEnd('/')}/{url}";
 
             HttpRequestMessage requestMessage = new()

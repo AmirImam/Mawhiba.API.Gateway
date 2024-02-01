@@ -1,5 +1,8 @@
 ﻿using Mawhiba.API.Gateway.Services;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http.Extensions;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Mawhiba.API.Gateway;
 
@@ -9,14 +12,15 @@ public class MyCustomMiddleware : IMiddleware
     {
         try
         {
-            var queryParameters = context.Request.Query
-             .SelectMany(q => q.Value, (col, value) => new { col.Key, value })
-             .ToDictionary(arg => arg.Key, arg => arg.value.ToString());
-            int serviceId = int.Parse(queryParameters["serviceId"]);
-            string url = queryParameters["url"];
+            string querystring = context.Request.QueryString.Value.Substring(1, context.Request.QueryString.Value.Length - 1);
+            var items = ExtractServiceIdAndUrl(querystring);
+
+            int serviceId = int.Parse(items.Item1);
+            string url = getvalues(items.Item2);
+
             string method = context.Request.Method.ToLower();
             APIService? apiService = context.RequestServices.GetService(typeof(APIService)) as APIService;
-            if(apiService == null)
+            if (apiService == null)
             {
                 await context.Response.WriteAsJsonAsync("Service not found");
                 return;
@@ -39,5 +43,29 @@ public class MyCustomMiddleware : IMiddleware
             await context.Response.WriteAsJsonAsync(ex);
         }
         //await next.Invoke(context);
+    }
+
+    static Tuple<string, string> ExtractServiceIdAndUrl(string input)
+    {
+        // Updated Regex pattern to extract serviceId and url
+        var pattern = @"serviceId=(.*?)&url=(.*)";
+        var match = Regex.Match(input, pattern);
+
+        if (match.Success)
+        {
+            string serviceId = match.Groups[1].Value;
+            string url = match.Groups[2].Value;
+            return Tuple.Create(serviceId, url);
+        }
+
+        return null;
+    }
+
+
+    private string getvalues(string inputText)
+    {
+        string pattern = @"^(.*?)&";
+        string result = Regex.Replace(inputText, pattern, "$1?");
+        return result;
     }
 }

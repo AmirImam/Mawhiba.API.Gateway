@@ -1,4 +1,5 @@
-﻿using Mawhiba.API.Gateway.Services;
+﻿using Mawhiba.API.Gateway.Models;
+using Mawhiba.API.Gateway.Services;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,15 +11,16 @@ namespace Mawhiba.API.Gateway.Controllers;
 public class GenericServiceController : ControllerBase
 {
     private readonly APIService _apiService;
+    //private readonly ContentServicesDbContext _context;
 
-
-    public GenericServiceController(APIService apiService)
+    public GenericServiceController(APIService apiService, ContentServicesDbContext context)
     {
         _apiService = apiService;
+        //_context = context;
     }
 
     [HttpGet]
-    [Route("/api/[controller]/get")]
+    [Route("/api/[controller]/get/{serviceId}/{url}")]
     public async Task<IActionResult> GetAsync(int serviceId, string url) // actionId OR Encrypted
     {
         try
