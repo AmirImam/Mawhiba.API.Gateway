@@ -1,71 +1,68 @@
-﻿using Mawhiba.API.Gateway.Services;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http.Extensions;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿
 
-namespace Mawhiba.API.Gateway;
 
-public class MyCustomMiddleware : IMiddleware
+using System.Text.Json;
+
+namespace ApiGatewayService.API.ServiceHandlers;
+
+public class UserProfileHandler : ServiceHandler
 {
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public UserProfileHandler() { }
+
+    public override async Task<APIResult> HandleResponseAsync(HttpResponseMessage response)
     {
-        try
+        var apiResult = new APIResult
         {
-            string querystring = context.Request.QueryString.Value.Substring(1, context.Request.QueryString.Value.Length - 1);
-            var items = ExtractServiceIdAndUrl(querystring);
+            //ResultCode = ((int)response.StatusCode).ToString(),
+            ResultMessage = response.ReasonPhrase ?? string.Empty,
+            IsSuccess = false
+        };
 
-            int serviceId = int.Parse(items.Item1);
-            string url = getvalues(items.Item2);
+        string responseContent = await response.Content.ReadAsStringAsync();
 
-            string method = context.Request.Method.ToLower();
-            APIService? apiService = context.RequestServices.GetService(typeof(APIService)) as APIService;
-            if (apiService == null)
+        if (response.IsSuccessStatusCode)
+        {
+            try
             {
-                await context.Response.WriteAsJsonAsync("Service not found");
-                return;
-            }
-            var body = context.Request.Body;
-            StringContent? stringContent = null;
-            if (body != null)
-            {
-                using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8))
+                var options = new JsonSerializerOptions();
+                options.WriteIndented = true;
+                options.Converters.Add(new ObjectDeserializer());
+                var result = System.Text.Json.JsonSerializer.Deserialize<APIResult>(responseContent, options)!;
+
+                if (result != null)
                 {
-                    stringContent = new StringContent(await reader.ReadToEndAsync(), Encoding.UTF8, "application/json");
+                    if (result.ResultObject != null && result.ResultObject.GetType() == typeof(JsonElement))
+                    {
+                        try
+                        {
+                            apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(result.ResultObject.ToString()!, typeof(object));
+                        }
+                        catch
+                        {
+
+                            apiResult.ResultObject = null;
+                        }
+                    }
+                    else
+                    {
+                        apiResult.ResultObject = result.ResultObject;
+                    }
+
+                    apiResult.ResultMessage = result.ResultMessage;
+                    apiResult.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultCode);
                 }
             }
-
-            APIResult? result = await apiService.CallAsync(serviceId, url, new HttpMethod(method), stringContent);
-            await context.Response.WriteAsJsonAsync(result);
+            catch (System.Text.Json.JsonException ex)
+            {
+                apiResult.MoreDetails = $"JSON Deserialization Error: {ex.Message}";
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await context.Response.WriteAsJsonAsync(ex);
-        }
-        //await next.Invoke(context);
-    }
-
-    static Tuple<string, string> ExtractServiceIdAndUrl(string input)
-    {
-        // Updated Regex pattern to extract serviceId and url
-        var pattern = @"serviceId=(.*?)&url=(.*)";
-        var match = Regex.Match(input, pattern);
-
-        if (match.Success)
-        {
-            string serviceId = match.Groups[1].Value;
-            string url = match.Groups[2].Value;
-            return Tuple.Create(serviceId, url);
+            apiResult.MoreDetails = await response.Content.ReadAsStringAsync();
         }
 
-        return null;
+        return apiResult;
     }
 
-
-    private string getvalues(string inputText)
-    {
-        string pattern = @"^(.*?)&";
-        string result = Regex.Replace(inputText, pattern, "$1?");
-        return result;
-    }
 }
