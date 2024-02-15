@@ -1,5 +1,8 @@
 ﻿
 using Mawhiba.API.Gateway.Helpers;
+using Microsoft.Extensions.Hosting;
+using System.Reflection.PortableExecutable;
+using System.Text.Json;
 using System.Xml.Linq;
 
 namespace Mawhiba.API.Gateway;
@@ -10,44 +13,21 @@ public class ServiceHandler
     public ServiceInfo CurrentServiceInfo { get; set; }
     public virtual HttpRequestMessage HandleRequest(HttpRequestMessage requestMessage, HttpRequest request)
     {
-        //foreach (var header in request.Headers)
-        //{
-        //    requestMessage.Headers.Add(header.Key, new string[] { header.Value });
-        //}
-        //if(req)
-        requestMessage = TryAddHeader(requestMessage, request, "authorization");
-        requestMessage = TryAddHeader(requestMessage, request, "f_ur_453_x0");
+        Dictionary<string, string> headers = ExtractIncomingHeaders(request);
 
+        if (headers != null)
+        {
+            foreach (var header in headers)
+            {
+                requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            }
+        }
 
-        //if (authorization )
-        //{
-        //}
         return requestMessage;
     }
 
 
-    //public virtual async Task<APIResult> HandleResponseAsync2(HttpResponseMessage response)
-    //{
-    //    var result = new APIResult
-    //    {
-    //        ResultCode = ((int)response.StatusCode).ToString(),
-    //        ResultMessage = response.ReasonPhrase
-    //    };
 
-    //    if (response.IsSuccessStatusCode)
-    //    {
-    //        result.ResultObject = System.Text.Json.JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync(), typeof(object));// JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
-    //        result.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultObject.);
-    //    }
-    //    else
-    //    {
-    //        result.MoreDetails = await response.Content.ReadAsStringAsync();
-    //        // Additional handling for specific status codes can be added here
-    //    }
-
-
-    //    return result;
-    //}
 
     public virtual async Task<APIResult> HandleResponseAsync(HttpResponseMessage response)
     {
@@ -64,6 +44,8 @@ public class ServiceHandler
         {
             try
             {
+
+
                 var result = System.Text.Json.JsonSerializer.Deserialize<APIResult>(responseContent);
 
                 //var result =  JsonConvert.DeserializeObject<APIResult>(responseContent);
@@ -78,9 +60,19 @@ public class ServiceHandler
                         {
                             apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(result.ResultObject.ToString()!, typeof(object));
                         }
+                        catch (System.Text.Json.JsonException ex)
+                        {
+                            if (ex.ToString().Contains("'e' is an invalid start of a value."))
+                            {
+                                apiResult.ResultObject = result.ResultObject.ToString();
+                            }
+                            else
+                            {
+                                apiResult.ResultObject = null;
+                            }
+                        }
                         catch
                         {
-
                             apiResult.ResultObject = null;
                         }
                     }
@@ -89,7 +81,7 @@ public class ServiceHandler
                     apiResult.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultCode);
                 }
             }
-            catch (JsonException ex)
+            catch (System.Text.Json.JsonException ex)
             {
                 apiResult.MoreDetails = $"JSON Deserialization Error: {ex.Message}";
             }
@@ -123,6 +115,40 @@ public class ServiceHandler
         }
         return requestMessage;
     }
+
+
+    private Dictionary<string, string> ExtractIncomingHeaders(HttpRequest request)
+    {
+        try
+        {
+            var headers = new Dictionary<string, string>();
+
+            var incomingHeaders = request.Headers;
+
+            if (incomingHeaders == null)
+            {
+                return null;
+            }
+
+            // Check for "Authorization" and "F_ur_453_x0" headers and add them if present
+            if (incomingHeaders.ContainsKey("Authorization"))
+            {
+                headers.Add("Authorization", incomingHeaders["Authorization"].ToString());
+            }
+
+            if (incomingHeaders.ContainsKey("F_ur_453_x0"))
+            {
+                headers.Add("F_ur_453_x0", incomingHeaders["F_ur_453_x0"].ToString());
+            }
+
+            return headers;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
 
 }
 public class ApiResultObject

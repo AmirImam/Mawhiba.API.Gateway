@@ -5,7 +5,18 @@ using System.Web;
 
 namespace Mawhiba.API.Gateway.Services;
 
-public class APIService //: IAPIService
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+// Assuming Newtonsoft.Json is used for serialization
+using Newtonsoft.Json;
+
+
+public class APIService
 {
     private HttpClient Http
     {
@@ -14,10 +25,12 @@ public class APIService //: IAPIService
             HttpClientHandler clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
+
             HttpClient http = new(clientHandler, false);
             return http;
         }
     }
+    
     private readonly ServiceHandlerParser serviceHandlerParser;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IWebHostEnvironment webHostEnvironment;
@@ -29,12 +42,13 @@ public class APIService //: IAPIService
         IWebHostEnvironment webHostEnvironment, ContentServicesDbContext context)
     {
 
+
         this.serviceHandlerParser = serviceHandlerParser;
         this.httpContextAccessor = httpContextAccessor;
         this.webHostEnvironment = webHostEnvironment;
         this.context = context;
-        //_serviceHandler = serviceHandler;
     }
+
 
     public virtual async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, object data)
     {
@@ -45,9 +59,10 @@ public class APIService //: IAPIService
             stringContent = content;
         }
 
-        return await ExecuteCallAsync(serviceId, url, method, stringContent);
 
+        return await ExecuteCallAsync(serviceId, url, method, stringContent);
     }
+
     public virtual async Task<APIResult?> CallAsync(int serviceId, string url, HttpMethod method, StringContent? data)
     {
         return await ExecuteCallAsync(serviceId, url, method, data);
@@ -58,9 +73,9 @@ public class APIService //: IAPIService
         try
         {
             _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, context);
-            
             url = HttpUtility.UrlDecode(url);
             string fullUrl = $"{_serviceHandler.CurrentServiceInfo.BaseUrl.TrimEnd('/')}/{url}";
+
 
             HttpRequestMessage requestMessage = new()
             {
@@ -73,6 +88,7 @@ public class APIService //: IAPIService
             {
                 request.Content = data;
             }
+
 
             using (var _http = Http)
             {
@@ -87,4 +103,3 @@ public class APIService //: IAPIService
         }
     }
 }
-

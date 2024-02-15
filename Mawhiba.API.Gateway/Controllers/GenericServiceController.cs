@@ -1,8 +1,10 @@
 ﻿using Mawhiba.API.Gateway.Models;
 using Mawhiba.API.Gateway.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Runtime.InteropServices;
 
 namespace Mawhiba.API.Gateway.Controllers;
 
@@ -48,4 +50,21 @@ public class GenericServiceController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
+
+    [HttpPut]
+    [Route("/api/[controller]/put")]
+    public async Task<IActionResult> PutAsync(int serviceId, string url, object data)
+    {
+        try
+        {
+            APIResult result = await _apiService.CallAsync(serviceId, url, HttpMethod.Put, data);
+            return Ok(result.ResultObject);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+
 }
