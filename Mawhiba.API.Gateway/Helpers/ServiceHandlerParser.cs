@@ -19,6 +19,10 @@ public class ServiceHandlerParser
                 result = new BebrasServiceHandler();
                 break;
 
+            case 3:
+                result = new KangarooServiceHandler();
+                break;
+
             default:
                 result = new ServiceHandler();
                 break;
