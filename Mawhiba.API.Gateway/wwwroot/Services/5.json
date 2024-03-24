@@ -1,0 +1,15 @@
+﻿{
+  "BaseUrl": "https://testapi.mawhiba.org/Contents-Staging/api/",
+  "SuccessCodes": [
+    "OPP00", //تمت العملية بنجاح
+    "RES00" //Result Found
+  ],
+  "FailedCodes": [
+    "RES-401", //غير مصرح بالدخول في هذه الخدمة
+    "ERR00", //حدث خطأ أثناء تنفيذ العملية المطلوبة
+    "UNR00", //حدث خطأ أثناء تنفيذ العملية المطلوبة .... نرجو إعادة المحاولة لاحقا
+    "RES-1", //No Result Found
+    "RES-2", //Can not add repeated IRM
+    "RES-20" //يرجى إكمال جميع الحقول المطلوبة"
+  ]
+}

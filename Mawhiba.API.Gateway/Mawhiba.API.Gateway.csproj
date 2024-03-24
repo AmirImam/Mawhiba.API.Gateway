@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\services\5.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.15">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,6 +24,10 @@
     <Reference Include="HttpClientToCurl">
       <HintPath>..\..\..\..\Downloads\HttpClientToCurlGenerator-master\HttpClientToCurlGenerator-master\src\HttpClientToCurl\bin\Debug\netstandard2.1\HttpClientToCurl.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HttpClientToCurl\" />
   </ItemGroup>
 
 </Project>

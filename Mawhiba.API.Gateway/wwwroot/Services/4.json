@@ -1,0 +1,10 @@
+{
+  "BaseUrl": "https://testapi.mawhiba.org/yassir/api/",
+  "SuccessCodes": [
+    "200"
+  ],
+  "FailedCodes": [
+    "500",
+    "400"
+  ]
+}

@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using HttpClientToCurl;
 // Assuming Newtonsoft.Json is used for serialization
 using Newtonsoft.Json;
 
@@ -34,18 +35,22 @@ public class APIService
     private readonly ServiceHandlerParser serviceHandlerParser;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IWebHostEnvironment webHostEnvironment;
+    private readonly IConfiguration configuration;
     private readonly ContentServicesDbContext context;
     private ServiceHandler _serviceHandler;
 
     public APIService(ServiceHandlerParser serviceHandlerParser,
         IHttpContextAccessor httpContextAccessor,
-        IWebHostEnvironment webHostEnvironment, ContentServicesDbContext context)
+        IWebHostEnvironment webHostEnvironment, 
+        IConfiguration configuration,
+        ContentServicesDbContext context)
     {
 
 
         this.serviceHandlerParser = serviceHandlerParser;
         this.httpContextAccessor = httpContextAccessor;
         this.webHostEnvironment = webHostEnvironment;
+        this.configuration = configuration;
         this.context = context;
     }
 
@@ -72,7 +77,10 @@ public class APIService
     {
         try
         {
-            _serviceHandler = serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, context);
+            var useJsonFile = configuration["UseJsonFiles"];
+            _serviceHandler = useJsonFile == "True"?
+                serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, webHostEnvironment)
+                : serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, context);
             url = HttpUtility.UrlDecode(url);
             string fullUrl = $"{_serviceHandler.CurrentServiceInfo.BaseUrl.TrimEnd('/')}/{url}";
 
@@ -93,7 +101,9 @@ public class APIService
             using (var _http = Http)
             {
                 _http.BaseAddress = new Uri(_serviceHandler.CurrentServiceInfo.BaseUrl);
+                string curl = _http.GenerateCurlInString(request);
                 var response = await _http.SendAsync(request);
+
                 return await _serviceHandler.HandleResponseAsync(response);
             }
         }

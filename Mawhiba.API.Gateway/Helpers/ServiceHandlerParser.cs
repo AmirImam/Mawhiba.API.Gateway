@@ -7,6 +7,19 @@ public class ServiceHandlerParser
 {
     public ServiceHandler GetServiceByServiceId(ServiceHandler service, int serviceId, ContentServicesDbContext context) //where T : ServiceHandler
     {
+        ServiceHandler result = GetServiceHandler(serviceId);
+        result.CurrentServiceInfo = JsonHelper.GetServiceInfo(serviceId, context);
+        return result;
+    }
+    public ServiceHandler GetServiceByServiceId(ServiceHandler service, int serviceId, IWebHostEnvironment webHostEnvironment) //where T : ServiceHandler
+    {
+        ServiceHandler result = GetServiceHandler(serviceId);
+        result.CurrentServiceInfo = JsonHelper.GetServiceInfo(serviceId, webHostEnvironment);
+        return result;
+    }
+
+    private ServiceHandler GetServiceHandler(int serviceId)
+    {
         ServiceHandler result;
 
         switch (serviceId)
@@ -27,9 +40,6 @@ public class ServiceHandlerParser
                 result = new ServiceHandler();
                 break;
         }
-
-        result.CurrentServiceInfo = JsonHelper.GetServiceInfo(serviceId, context);
-
         return result;
     }
 }

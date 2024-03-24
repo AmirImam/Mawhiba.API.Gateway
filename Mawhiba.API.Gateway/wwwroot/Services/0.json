@@ -1,5 +1,5 @@
 {
-  "BaseUrl": "https://testapi.mawhiba.org/UserProfile/api/",
+  "BaseUrl": "http://localhost:64401/api/",
   "SuccessCodes": [
     "OPP00", // Succeeded
     "RES00", // Founded
