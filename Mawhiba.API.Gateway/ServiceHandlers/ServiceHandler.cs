@@ -13,7 +13,9 @@ public class ServiceHandler
     public ServiceInfo CurrentServiceInfo { get; set; }
     public virtual HttpRequestMessage HandleRequest(HttpRequestMessage requestMessage, HttpRequest request)
     {
-        Dictionary<string, string> headers = ExtractIncomingHeaders(request);
+        //Dictionary<string, string> headers = ExtractIncomingHeaders(request);
+        
+        Dictionary<string, string> headers = ExtractIncomingHeadersForTest(request);
 
         if (headers != null)
         {
@@ -148,7 +150,33 @@ public class ServiceHandler
             return null;
         }
     }
+    private Dictionary<string, string> ExtractIncomingHeadersForTest(HttpRequest request)
+    {
+        try
+        {
 
+            string userTokenValue = "72PUG8/rVNpqtWd57Zuv8kg8C5Q1jgcpVEX7ySvoYQllMXgTiAIXnhGLvn8Qi6xFREovzu0bQIWHkHwRj806oA==";
+            string authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Ik1hd2hpYmFBUFBNb2JpbGUiLCJuYmYiOjE3MTE4Njg2ODgsImV4cCI6MTcxNDQ2MDY4OCwiaWF0IjoxNzExODY4Njg4LCJpc3MiOiJNYXdoaWJhIiwiYXVkIjoiTW9iaWxlQVBQIn0.lKEOfG1_Fvk0eI5S0HOvlkFS8IzzJAWuU9awYpsc-A0";
+
+            var headers = new Dictionary<string, string>();
+
+            var incomingHeaders = request.Headers;
+
+            if (incomingHeaders == null)
+            {
+                return null;
+            }
+
+            headers.Add("Authorization", authToken);
+            headers.Add("F_ur_453_x0", userTokenValue);
+
+            return headers;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
 }
 public class ApiResultObject

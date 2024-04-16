@@ -28,7 +28,7 @@ public class ServiceHandlerParser
                 result = new UserProfileHandler();
                 break;
 
-            case 1:
+            case 6:
                 result = new BebrasServiceHandler();
                 break;
 

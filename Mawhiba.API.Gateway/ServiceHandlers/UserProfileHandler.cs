@@ -103,6 +103,21 @@ public class UserProfileHandler : ServiceHandler
 
                     apiResult.ResultMessage = result.ResultMessage;
                     apiResult.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultCode);
+
+                    // Special Cases
+                    try
+                    {
+                        if (response.RequestMessage.RequestUri.AbsolutePath.Contains("RequestConfirmMobileNumberWithoutCodeEncrypted", StringComparison.InvariantCultureIgnoreCase)
+                            || response.RequestMessage.RequestUri.AbsolutePath.Contains("RequestConfirmEmailAddressWithoutCodeEncrypted", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            apiResult.ResultObject = result.MoreDetails;
+                        }
+                    }
+                    catch
+                    {
+
+
+                    }
                 }
             }
             catch (System.Text.Json.JsonException ex)
