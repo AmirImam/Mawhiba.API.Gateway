@@ -66,5 +66,18 @@ public class GenericServiceController : ControllerBase
         }
     }
 
-
+    [HttpDelete]
+    [Route("/api/[controller]/delete")]
+    public async Task<IActionResult> DeleteAsync(int serviceId, string url, object data)
+    {
+        try
+        {
+            APIResult result = await _apiService.CallAsync(serviceId, url, HttpMethod.Delete, data);
+            return Ok(result.ResultObject);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 }

@@ -1,0 +1,38 @@
+{
+  "BaseUrl": "http://localhost:17871/api/",
+  "SuccessCodes": [
+    "CHK01", // CheckBusinessOk
+    "OPP00", // Succeeded
+    "RES00" // Founded
+  ],
+  "FailedCodes": [
+    "ERR00", // Failed
+    "UNR00", // Unknown Error
+    "RES-1", //NotFounded
+    "RES-2", //ItemAlreadyExistsBefore
+    "RES-20", //FieldIsNullOrEmpty
+    "RES-401", //UnAuthorize
+    "ERR01", // UserIdError
+    "ERR02", // AlreadyRegisteredError
+    "ERR03", // NoExamError
+    "ERR04", // NoSchoolError
+    "ERR05", // NoMobileError
+    "ERR06", // NoAltrMobileError
+    "ERR07", // NoClassError
+    "ERR08", // NoCityError
+    "ERR09", // ExamCapacityExceededError
+    "ERR10", // AlreadyRegisteredInExamError
+    "ERR11", // InvalidUserError
+    "ERR12", // NoMotheName
+    "ERR13", // NoMotherID
+    "ERR14", // NoMotherMobile
+    "ERR15", // NoMotherIdFile
+    "ERR16", // NoBirthDateFile
+    "ERR17", // RegisterStudentCourseDatesunauthorized
+    "ERR13", // UserContactInfoNotFounded
+    "ERR48", // YassirNotUpdated
+    "ERR24", // MotherInfoMissing
+    "ERR20", // AltMobile_Invalid
+    "ERR33" // StudentDeleteError
+  ]
+}
