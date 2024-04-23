@@ -14,7 +14,7 @@ public class ServiceHandler
     public virtual HttpRequestMessage HandleRequest(HttpRequestMessage requestMessage, HttpRequest request)
     {
         //Dictionary<string, string> headers = ExtractIncomingHeaders(request);
-        
+
         Dictionary<string, string> headers = ExtractIncomingHeadersForTest(request);
 
         if (headers != null)
@@ -80,7 +80,7 @@ public class ServiceHandler
                     }
 
                     apiResult.ResultMessage = result.ResultMessage;
-                    apiResult.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultCode);
+                    apiResult.IsSuccess = CurrentServiceInfo.IsSuccess(result.ResultCode ?? "");
                 }
             }
             catch (System.Text.Json.JsonException ex)
