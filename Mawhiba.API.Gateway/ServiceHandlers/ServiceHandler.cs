@@ -42,6 +42,8 @@ public class ServiceHandler
 
         string responseContent = await response.Content.ReadAsStringAsync();
 
+
+
         if (response.IsSuccessStatusCode)
         {
             try

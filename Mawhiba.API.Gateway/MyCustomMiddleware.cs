@@ -1,4 +1,5 @@
-﻿using Mawhiba.API.Gateway.Services;
+﻿using Mawhiba.API.Gateway.Models;
+using Mawhiba.API.Gateway.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Text;
@@ -8,10 +9,22 @@ namespace Mawhiba.API.Gateway;
 
 public class MyCustomMiddleware : IMiddleware
 {
+    private readonly ContentServicesDbContext dbcontext;
+
+    public MyCustomMiddleware(
+       ContentServicesDbContext context)
+    {
+        this.dbcontext = context;
+    }
+
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
         {
+            ExceptionHandler.SaveLog("InvokeAsync", dbcontext);
+
+
             string querystring = context.Request.QueryString.Value.Substring(1, context.Request.QueryString.Value.Length - 1);
             var items = ExtractServiceIdAndUrl(querystring);
 
@@ -40,7 +53,8 @@ public class MyCustomMiddleware : IMiddleware
         }
         catch (Exception ex)
         {
-            await context.Response.WriteAsJsonAsync(ex);
+            ExceptionHandler.SaveLog(ex.ToString(), dbcontext);
+            //await context.Response.WriteAsJsonAsync(ex);
         }
         //await next.Invoke(context);
     }
