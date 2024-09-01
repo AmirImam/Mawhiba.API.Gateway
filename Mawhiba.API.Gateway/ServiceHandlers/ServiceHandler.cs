@@ -13,9 +13,8 @@ public class ServiceHandler
     public ServiceInfo CurrentServiceInfo { get; set; }
     public virtual HttpRequestMessage HandleRequest(HttpRequestMessage requestMessage, HttpRequest request)
     {
-        //Dictionary<string, string> headers = ExtractIncomingHeaders(request);
-
-        Dictionary<string, string> headers = ExtractIncomingHeadersForTest(request);
+        Dictionary<string, string> headers = ExtractIncomingHeaders(request);
+        //Dictionary<string, string> headers = ExtractIncomingHeadersForTest(request);
 
         if (headers != null)
         {

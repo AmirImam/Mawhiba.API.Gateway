@@ -80,18 +80,12 @@ public class APIService
         {
             ExceptionHandler.SaveLog("ExecuteCallAsync", context);
 
-
             var useJsonFile = configuration["UseJsonFiles"];
             _serviceHandler = useJsonFile == "True"?
                 serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, webHostEnvironment)
                 : serviceHandlerParser.GetServiceByServiceId(_serviceHandler, serviceId, context);
             url = HttpUtility.UrlDecode(url);
             string fullUrl = $"{_serviceHandler.CurrentServiceInfo.BaseUrl.TrimEnd('/')}/{url}";
-
-            context.ExceptionLogs.Add(new ExceptionLog { Id = Guid.NewGuid(), ExceptionText = fullUrl, ExceptionTime = DateTime.Now });
-            context.SaveChanges();
-
-
 
             HttpRequestMessage requestMessage = new()
             {
@@ -105,16 +99,11 @@ public class APIService
                 request.Content = data;
             }
 
-
             using (var _http = Http)
             {
                 _http.BaseAddress = new Uri(_serviceHandler.CurrentServiceInfo.BaseUrl);
-                //string curl = _http.GenerateCurlInString(request);
                 var response = await _http.SendAsync(request);
-
                 string responseContent = await response.Content.ReadAsStringAsync();
-                context.ExceptionLogs.Add(new ExceptionLog { Id = Guid.NewGuid(), ExceptionText = responseContent, ExceptionTime = DateTime.Now });
-                context.SaveChanges();
                 return await _serviceHandler.HandleResponseAsync(response);
             }
         }
@@ -122,7 +111,6 @@ public class APIService
         {
             context.ExceptionLogs.Add(new ExceptionLog { Id = Guid.NewGuid(), ExceptionText = ex.ToString(), ExceptionTime = DateTime.Now });
             context.SaveChanges();
-
             return _serviceHandler.HandleException(ex);
         }
     }
