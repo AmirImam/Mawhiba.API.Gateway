@@ -15,7 +15,7 @@ public class ServiceHandler
     {
         //Dictionary<string, string> headers = ExtractIncomingHeaders(request);
         
-        Dictionary<string, string> headers = ExtractIncomingHeadersForTest(request);
+        Dictionary<string, string> headers = ExtractIncomingHeaders(request);
 
         if (headers != null)
         {
@@ -64,7 +64,7 @@ public class ServiceHandler
                         }
                         catch (System.Text.Json.JsonException ex)
                         {
-                            if (ex.ToString().Contains("'e' is an invalid start of a value."))
+                            if (ex.ToString().Contains("is an invalid start of a value."))
                             {
                                 apiResult.ResultObject = result.ResultObject.ToString();
                             }

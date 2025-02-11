@@ -14,7 +14,7 @@ public static class JsonHelper
     {
         try
         {
-            if (!_serviceCache.ContainsKey(serviceId))
+            if (!_serviceCache.ContainsKey(serviceId) || true)
             {
                 _serviceCache = new Dictionary<int, ServiceInfo>();
                 var services = context.GatewaySettings.ToList();
