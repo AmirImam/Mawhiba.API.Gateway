@@ -6,6 +6,19 @@ public class ServiceInfo
     public List<Endpoint>? Endpoints { get; set; }
     public IEnumerable<string> SuccessCodes { get; set; } = new List<string>();
     public IEnumerable<string> FailedCodes { get; set; } = new List<string>();
+
+    public bool IsSuccess(string code)
+    {
+        try
+        {
+            return SuccessCodes.Any(a => a.ToLower() == code.ToLower());
+        }
+        catch
+        {
+
+            return false;
+        }
+    }
 }
 
 public class Endpoint

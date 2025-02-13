@@ -36,6 +36,10 @@ public class ServiceHandlerParser
                 result = new KangarooServiceHandler();
                 break;
 
+            case 14:
+                result = new MHubServiceHandler();
+                break;
+
             default:
                 result = new ServiceHandler();
                 break;
