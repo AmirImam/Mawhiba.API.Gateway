@@ -19,7 +19,7 @@ public class MHubServiceHandler : ServiceHandler
         base.HandleRequest(requestMessage, request);
 
         // Check if the URL contains the specified pattern
-        if (requestMessage.RequestUri.AbsolutePath.Contains("GetRegistrationsToExam", StringComparison.InvariantCultureIgnoreCase))
+        if (requestMessage.RequestUri.AbsolutePath.Contains("GenerateUserToken", StringComparison.InvariantCultureIgnoreCase))
         {
             // Parse the Query String
             var query = HttpUtility.ParseQueryString(requestMessage.RequestUri.Query);
@@ -34,7 +34,7 @@ public class MHubServiceHandler : ServiceHandler
             string idValue = "";
             foreach (string key in query.AllKeys)
             {
-                if (key == "id")
+                if (key == "userid")
                 {
                     // Directly append the 'id' value to the path for specific handling
                     basePath += $"/{query[key]}";
