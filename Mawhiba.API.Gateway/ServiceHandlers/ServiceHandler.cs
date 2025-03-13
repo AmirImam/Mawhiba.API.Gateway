@@ -57,17 +57,20 @@ public class ServiceHandler
 
                 if (result != null)
                 {
-                    if (result.ResultObject != null)
+                    if (result.ResultObject != null )//|| result.resultObject != null
                     {
+                        var resultObject = result.ResultObject;//?? result.resultObject;
+
                         try
                         {
-                            apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(result.ResultObject.ToString()!, typeof(object));
+                            
+                            apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(resultObject.ToString()!, typeof(object));
                         }
                         catch (System.Text.Json.JsonException ex)
                         {
                             if (ex.ToString().Contains("is an invalid start of a value."))
                             {
-                                apiResult.ResultObject = result.ResultObject.ToString();
+                                apiResult.ResultObject = resultObject.ToString();
                             }
                             else
                             {

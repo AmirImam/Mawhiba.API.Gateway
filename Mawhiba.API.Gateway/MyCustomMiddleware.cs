@@ -28,6 +28,12 @@ public class MyCustomMiddleware : IMiddleware
             string querystring = context.Request.QueryString.Value.Substring(1, context.Request.QueryString.Value.Length - 1);
             var items = ExtractServiceIdAndUrl(querystring);
 
+            if(items == null)
+            {
+                await next.Invoke(context);
+                return;
+            }
+
             int serviceId = int.Parse(items.Item1);
             string url = getvalues(items.Item2);
 

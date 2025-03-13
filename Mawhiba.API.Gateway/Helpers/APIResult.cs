@@ -8,4 +8,5 @@ public class APIResult
     public bool IsSuccess { get; set; }
     public Dictionary<string, string>? ValidationDictionary { get; set; }
     public object? ResultObject { get; set; }
+    //public object? resultObject { get; set; }
 }
