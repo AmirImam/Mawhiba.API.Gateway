@@ -36,6 +36,14 @@ public class ServiceHandlerParser
                 result = new KangarooServiceHandler();
                 break;
 
+            case 4:
+                result = new YassirServiceHandler();
+                break;
+
+            case 8:
+                result = new IbaaServiceHandler();
+                break;
+
             case 14:
                 result = new MHubServiceHandler();
                 break;

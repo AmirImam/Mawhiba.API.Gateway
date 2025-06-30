@@ -47,23 +47,26 @@ public class ServiceHandler
         {
             try
             {
-
-
                 var result = System.Text.Json.JsonSerializer.Deserialize<APIResult>(responseContent);
-
-                //var result =  JsonConvert.DeserializeObject<APIResult>(responseContent);
-                //var result = JsonConvert.DeserializeObject<dynamic>(responseContent)!;
-                //var str = System.Text.Json.JsonSerializer.Serialize(result.ResultObject);
 
                 if (result != null)
                 {
-                    if (result.ResultObject != null )//|| result.resultObject != null
-                    {
-                        var resultObject = result.ResultObject;//?? result.resultObject;
+                    object? resultObject = result.ResultObject;
 
+                    if (resultObject == null)
+                    {
+                        // Try deserializing to the alternative version
+                        var result2 = System.Text.Json.JsonSerializer.Deserialize<APIResult2>(responseContent);
+                        if (result2 != null && result2.resultObject != null)
+                        {
+                            resultObject = result2.resultObject;
+                        }
+                    }
+
+                    if (resultObject != null)
+                    {
                         try
                         {
-                            
                             apiResult.ResultObject = System.Text.Json.JsonSerializer.Deserialize(resultObject.ToString()!, typeof(object));
                         }
                         catch (System.Text.Json.JsonException ex)

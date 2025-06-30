@@ -21,8 +21,10 @@ public class GenericServiceController : ControllerBase
         //_context = context;
     }
 
+    //[HttpGet]
+    //[Route("/api/[controller]/get/{serviceId}/{url}")]
     [HttpGet]
-    [Route("/api/[controller]/get/{serviceId}/{url}")]
+    [Route("/api/[controller]/get/")]
     public async Task<IActionResult> GetAsync(int serviceId, string url) // actionId OR Encrypted
     {
         try

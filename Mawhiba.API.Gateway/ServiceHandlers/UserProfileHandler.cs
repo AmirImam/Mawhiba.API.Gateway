@@ -18,6 +18,8 @@ public class UserProfileHandler : ServiceHandler
         if (requestMessage.RequestUri.AbsolutePath.Contains("GetFullDetailsForServicesByUserId", StringComparison.InvariantCultureIgnoreCase)
             || requestMessage.RequestUri.AbsolutePath.Contains("UpdateRegisterationEmailActivated", StringComparison.InvariantCultureIgnoreCase)
             || requestMessage.RequestUri.AbsolutePath.Contains("ActivateByMobile", StringComparison.InvariantCultureIgnoreCase)
+            || requestMessage.RequestUri.AbsolutePath.Contains("UpdateEmailAddress", StringComparison.InvariantCultureIgnoreCase)
+            || requestMessage.RequestUri.AbsolutePath.Contains("UpdateConfirmMobileNumber", StringComparison.InvariantCultureIgnoreCase)
             )
         {
             // Parse the Query String
@@ -54,6 +56,11 @@ public class UserProfileHandler : ServiceHandler
                 newUri += "?" + string.Join("&", otherParams);
             }
 
+
+            if (requestMessage.RequestUri.AbsolutePath.Contains("UpdateEmailAddress", StringComparison.InvariantCultureIgnoreCase) || requestMessage.RequestUri.AbsolutePath.Contains("UpdateConfirmMobileNumber", StringComparison.InvariantCultureIgnoreCase))
+            {
+                newUri = FixUrl(newUri);
+            }
 
             // Update the RequestUri of requestMessage
             requestMessage.RequestUri = new Uri(newUri);
@@ -131,6 +138,27 @@ public class UserProfileHandler : ServiceHandler
         }
 
         return apiResult;
+    }
+
+
+    private string FixUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return url;
+
+        int firstQuestionMarkIndex = url.IndexOf('?');
+
+        if (firstQuestionMarkIndex == -1)
+            return url; // No ? found
+
+        // Split into two parts: before and after the first ?
+        string firstPart = url.Substring(0, firstQuestionMarkIndex + 1); // including ?
+        string restPart = url.Substring(firstQuestionMarkIndex + 1);
+
+        // Replace all ? with & in the rest part
+        restPart = restPart.Replace('?', '&');
+
+        return firstPart + restPart;
     }
 
 }

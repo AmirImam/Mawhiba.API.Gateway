@@ -87,6 +87,8 @@ public class APIService
             url = HttpUtility.UrlDecode(url);
             string fullUrl = $"{_serviceHandler.CurrentServiceInfo.BaseUrl.TrimEnd('/')}/{url}";
 
+            fullUrl = FixUrl(fullUrl);
+
             HttpRequestMessage requestMessage = new()
             {
                 Method = method,
@@ -113,5 +115,20 @@ public class APIService
             context.SaveChanges();
             return _serviceHandler.HandleException(ex);
         }
+    }
+
+
+    public static string FixUrl(string url)
+    {
+        int firstQuestionMarkIndex = url.IndexOf('?');
+        if (firstQuestionMarkIndex == -1) return url; // No query string found
+
+        string baseUrl = url.Substring(0, firstQuestionMarkIndex + 1);
+        string query = url.Substring(firstQuestionMarkIndex + 1);
+
+        // Replace any subsequent '?' with '&'
+        query = query.Replace('?', '&');
+
+        return baseUrl + query;
     }
 }
